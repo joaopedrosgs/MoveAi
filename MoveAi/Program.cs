@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +18,7 @@ namespace MoveAi
         {
             var Ai = new MovementAi();
             int a = 0;
-            while (Ai.playerPosition != Ai.objetivePosition)
+            while (!Ai.playerPosition.SequenceEqual(Ai.objetivePosition))
             {
                 Console.Clear();
                 Ai.PrintMap();
@@ -27,6 +27,9 @@ namespace MoveAi
                 a++;
                 Console.ReadKey();
             }
+            Console.Clear();
+            Ai.PrintMap();
+            Console.WriteLine("Fim, foram necessarios " + a + " passos");
         }
     }
 
@@ -39,15 +42,15 @@ namespace MoveAi
 
         public MovementAi()
         {
-            playerPosition = new int[2] {1, 1};
-            objetivePosition = new int[2] {9, 12};
+            playerPosition = new int[2] { 1, 1 };
+            objetivePosition = new int[2] { 9, 12 };
             walked = new List<int[]>(10);
 
 
             map = new[,]
             {
                 {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1}, 
+                {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
                 {1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
                 {1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
                 {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
@@ -55,25 +58,25 @@ namespace MoveAi
                 {1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1},
                 {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1},
                 {1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1},
-                {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1}, 
+                {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
                 {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
             };
         }
 
         public void PrintMap()
         {
-            for (int y = 0; y <= map.GetUpperBound((int) Coord.Y); y++)
+            for (int y = 0; y <= map.GetUpperBound((int)Coord.Y); y++)
             {
-                for (int x = 0; x <= map.GetUpperBound((int) Coord.X); x++)
+                for (int x = 0; x <= map.GetUpperBound((int)Coord.X); x++)
                 {
-                    if (x == playerPosition[(int) Coord.X] && y == playerPosition[(int) Coord.Y])
+                    if (x == playerPosition[(int)Coord.X] && y == playerPosition[(int)Coord.Y])
                     {
                         Console.ForegroundColor = ConsoleColor.Blue;
                         Console.Write("* ");
                         Console.ForegroundColor = ConsoleColor.White;
                     }
-                 
-                    else if(x == objetivePosition[(int)Coord.X] && y == objetivePosition[(int)Coord.Y])
+
+                    else if (x == objetivePosition[(int)Coord.X] && y == objetivePosition[(int)Coord.Y])
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
 
@@ -117,30 +120,31 @@ namespace MoveAi
 
         public bool CanGo(int[] tile)
         {
-   
-                return (InsideBoundaries(tile) && Walkable(tile));
+
+            return (InsideBoundaries(tile) && Walkable(tile));
 
         }
 
         public bool InsideBoundaries(int[] tile)
         {
-            return tile[(int) Coord.X] <= map.GetUpperBound((int) Coord.X) &&
-                   tile[(int) Coord.Y] <= map.GetUpperBound((int) Coord.Y) &&
-                   tile[(int) Coord.X] >= 0 &&
-                   tile[(int) Coord.Y] >= 0;
+            return tile[(int)Coord.X] <= map.GetUpperBound((int)Coord.X) &&
+                   tile[(int)Coord.Y] <= map.GetUpperBound((int)Coord.Y) &&
+                   tile[(int)Coord.X] >= 0 &&
+                   tile[(int)Coord.Y] >= 0;
         }
 
         public bool Walkable(int[] tile)
         {
-            return map[tile[(int) Coord.Y], tile[(int) Coord.X]] == 0;
+            var tileValue = map[tile[(int)Coord.Y], tile[(int)Coord.X]];
+            return tileValue == 0 || (tile[(int)Coord.Y] == objetivePosition[(int)Coord.Y] && tile[(int)Coord.X] == objetivePosition[(int)Coord.X]);
         }
 
         public double Distance(int[] tile)
         {
             return Math.Sqrt(
-                Math.Pow(tile[(int) Coord.Y] - objetivePosition[(int) Coord.Y], 2)
+                Math.Pow(tile[(int)Coord.Y] - objetivePosition[(int)Coord.Y], 2)
                 +
-                Math.Pow(tile[(int) Coord.X] - objetivePosition[(int) Coord.X], 2)
+                Math.Pow(tile[(int)Coord.X] - objetivePosition[(int)Coord.X], 2)
             );
         }
 
